@@ -70,4 +70,7 @@ def get_events_processo(browser, proc_id):
     events.append(event)
 
   _goto_main_page(browser)
+
+  events.reverse()
   return events
+
