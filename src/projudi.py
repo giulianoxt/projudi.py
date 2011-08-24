@@ -66,7 +66,7 @@ def get_events_processo(browser, proc_id):
     main_row = sub_table.tr
 
     columns = main_row('td', recursive=False)
-    event = [td.getText('\n') for td in columns[2:-1]]
+    event = [td.getText('\n').strip() for td in columns[2:-1]]
     events.append(event)
 
   _goto_main_page(browser)
