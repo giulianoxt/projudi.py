@@ -2,8 +2,10 @@ import mechanize
 from BeautifulSoup import BeautifulSoup
 
 
-LOGIN_URL = 'https://projudi.tjrn.jus.br/projudi/indexParte.jsp'
-MAIN_PAGE_URL = 'https://projudi.tjrn.jus.br/projudi/parte/frameCentroParte.jsp'
+BASE_URL = 'https://projudi.tjrn.jus.br/projudi/'
+LOGIN_URL = BASE_URL + 'indexParte.jsp'
+MAIN_PAGE_URL = BASE_URL + 'parte/frameCentroParte.jsp'
+PROCESSO_PAGE_URL = BASE_URL + 'listagens/DadosProcesso?numeroProcesso=%s'
 
 
 def init_session():
@@ -44,8 +46,28 @@ def get_processos_ativo(browser):
 
   for row_proc in table_procs.findAll('tr')[2:]:
     check = row_proc.find(type='checkbox')
-    proc_str = str(check['value'])
-    processos.append(proc_str)
+    proc_id = str(check['value'])
+    processos.append(proc_id)
 
   _goto_main_page(browser)
   return processos
+
+
+def get_events_processo(browser, proc_id):
+  res = browser.open(PROCESSO_PAGE_URL % proc_id)
+
+  soup = BeautifulSoup(res.read())
+  proc_table = soup.find(id='Arquivos').table
+
+  events = []
+
+  for event_row in proc_table('tr', recursive=False)[1:]:
+    sub_table = event_row.table
+    main_row = sub_table.tr
+
+    columns = main_row('td', recursive=False)
+    event = [td.getText('\n') for td in columns[2:-1]]
+    events.append(event)
+
+  _goto_main_page(browser)
+  return events
