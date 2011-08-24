@@ -30,15 +30,12 @@ def login(browser, cpf, password):
   return browser.submit()
 
 
-def _goto_processos_ativo(browser):
-  return browser.follow_link(url_regex='ativosPoloAtivo')
-
 def _goto_main_page(browser):
   return browser.open(MAIN_PAGE_URL)
 
 
 def get_processos_ativo(browser):
-  res = _goto_processos_ativo(browser)
+  res = browser.follow_link(url_regex='ativosPoloAtivo')
 
   soup = BeautifulSoup(res.read())
   table_procs = soup.find(id='texto').table
@@ -46,9 +43,9 @@ def get_processos_ativo(browser):
   processos = []
 
   for row_proc in table_procs.findAll('tr')[2:]:
-    td = row_proc.findAll('td')[1]
-    proc_str = td.a.text.strip()
-    processos.append(str(proc_str))
+    check = row_proc.find(type='checkbox')
+    proc_str = str(check['value'])
+    processos.append(proc_str)
 
   _goto_main_page(browser)
   return processos
